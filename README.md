@@ -1,2 +1,2 @@
 # redmine_sentry
-Redmine plugin which sends errors to Sentry
+Redmine plugin which sends events to Sentry

@@ -1,0 +1,1 @@
+require_dependency 'redmine_sentry/application_controller_patch'
