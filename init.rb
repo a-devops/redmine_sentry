@@ -4,7 +4,7 @@ Redmine::Plugin.register :redmine_sentry do
   name 'Redmine Sentry plugin'
   author 'Boris Gorbylev <ekho@ekho.name>'
   description 'This is a plugin for Redmine'
-  version '0.0.1'
+  version '1.0.0'
   url 'https://github.com/admitad-devops/redmine_sentry'
   author_url 'https://github.com/ekho'
 
