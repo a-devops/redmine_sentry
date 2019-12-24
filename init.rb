@@ -4,7 +4,7 @@ Redmine::Plugin.register :redmine_sentry do
   name 'Redmine Sentry plugin'
   author 'Boris Gorbylev <ekho@ekho.name>'
   description 'This is a plugin for Redmine'
-  version '1.1.0'
+  version '1.1.1'
   url 'https://github.com/admitad-devops/redmine_sentry'
   author_url 'https://github.com/ekho'
 
@@ -29,7 +29,7 @@ Rails.application.config.to_prepare do
 
   sentry_config = {'dsn' => nil, 'release' => nil, 'environment' => ENV['RAILS_ENV'] || ENV['RACK_ENV'], 'server_name' => nil}
   sentry_config.merge!((Redmine::Configuration['sentry'] || {}).compact)
-  sentry_config.merge!({'dsn' => ENV['SENTRY_DSN'], 'release' => ENV['SENTRY_CURRENT_ENV'] || ENV['SENTRY_ENVIRONMENT'], }.compact)
+  sentry_config.merge!({'dsn' => ENV['SENTRY_DSN'], 'release' => ENV['SENTRY_RELEASE'], 'environment' => ENV['SENTRY_CURRENT_ENV'] || ENV['SENTRY_ENVIRONMENT'], }.compact)
 
   if sentry_config['server_name'].nil? && ActiveRecord::Base.connection.table_exists?('settings')
     ########
