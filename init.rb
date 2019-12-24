@@ -27,19 +27,27 @@ Rails.application.config.to_prepare do
   Rails.application.config.filter_parameters << :password
   Rails.application.config.filter_parameters << :password_confirmation
 
-  if ENV.include?('SENTRY_DSN')
-    host_name = nil
+  sentry_config = {'dsn' => nil, 'release' => nil, 'environment' => ENV['RAILS_ENV'] || ENV['RACK_ENV'], 'server_name' => nil}
+  sentry_config.merge!((Redmine::Configuration['sentry'] || {}).compact)
+  sentry_config.merge!({'dsn' => ENV['SENTRY_DSN'], 'release' => ENV['SENTRY_CURRENT_ENV'] || ENV['SENTRY_ENVIRONMENT'], }.compact)
+
+  if sentry_config['server_name'].nil? && ActiveRecord::Base.connection.table_exists?('settings')
     ########
     # Direct Setting read is used for prevent of Setting object initialized before all plugins registred! Or later plugins will fail on tryin to read Setting.plugin_settings
     ########
-    if ActiveRecord::Base.connection.table_exists?('settings')
-      host_name = ActiveRecord::Base.connection.select_all("SELECT value FROM settings WHERE name='host_name'").first
-    end
+    sentry_config['server_name'] = (ActiveRecord::Base.connection.select_all("SELECT value FROM settings WHERE name='host_name'").first || {'value': nil})['value']
+  end
 
+  Rails.logger.debug("[redmine_sentry] config: #{sentry_config.inspect}")
+
+  if sentry_config['dsn']
     Raven.configure do |config|
-      config.server_name = host_name if host_name
+      config.dsn = sentry_config.fetch('dsn')
+      config.server_name = sentry_config.fetch('server_name')
+      config.current_environment = sentry_config.fetch('environment')
+      config.release = sentry_config.fetch('release')
+
       config.sanitize_fields = Rails.application.config.filter_parameters.map(&:to_s)
-      config.release = ENV['SENTRY_RELEASE'] if ENV.include?('SENTRY_RELEASE')
     end
   end
 
